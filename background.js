@@ -1,6 +1,4 @@
-// background.js
 
-// 1️⃣ When the extension is installed, add a “Speak selected text” item
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "speakSelectedText",
@@ -9,14 +7,12 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-// 2️⃣ Handle context‐menu clicks
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "speakSelectedText") {
     speakText(info.selectionText, tab.id);
   }
 });
 
-// 3️⃣ Handle keyboard shortcut (Alt+T)
 chrome.commands.onCommand.addListener((command, tab) => {
   if (command === "speak-selected-text") {
     chrome.scripting.executeScript({
@@ -34,7 +30,6 @@ chrome.commands.onCommand.addListener((command, tab) => {
   }
 });
 
-// 4️⃣ Main entry: validate & fetch TTS
 function speakText(text, tabId) {
   if (!text?.trim()) return;
 
@@ -70,7 +65,6 @@ function speakText(text, tabId) {
   });
 }
 
-// 5️⃣ Call Google Cloud TTS and return a Promise of base64‐audio
 function fetchTTS(text, { apiKey, language, voice, pitch, rate }) {
   // Using string concatenation instead of template literals
   const url = "https://texttospeech.googleapis.com/v1/text:synthesize?key=" + encodeURIComponent(apiKey);
@@ -79,7 +73,7 @@ function fetchTTS(text, { apiKey, language, voice, pitch, rate }) {
     input: { text },
     voice: { languageCode: language, name: voice },
     audioConfig: {
-      audioEncoding: "MP3", // Using MP3 as we discussed before
+      audioEncoding: "MP3",
       speakingRate: +rate
     }
   };

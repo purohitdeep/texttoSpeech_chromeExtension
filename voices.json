@@ -1,0 +1,16 @@
+{
+  "en-US": [
+    { "name": "en-US-Chirp3-HD-Leda", "gender": "Female" },
+    { "name": "en-US-Chirp3-HD-Umbriel", "gender": "Male" }
+  ],
+  "en-GB": [
+    { "name": "en-GB-Chirp3-HD-Algieba", "gender": "Male" },
+    { "name": "en-GB-Chirp3-HD-Achernar", "gender": "Female" }
+  ],
+  "sv-SE": [
+    { "name": "sv-SE-Standard-A", "gender": "Female" },
+    { "name": "sv-SE-Wavenet-A", "gender": "Female" },
+    { "name": "sv-SE-Wavenet-B", "gender": "Female" },
+    { "name": "sv-SE-Wavenet-C", "gender": "Male" }
+  ]
+}
