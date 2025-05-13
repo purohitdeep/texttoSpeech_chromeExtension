@@ -1,87 +1,89 @@
-// Audio element for playing TTS
-let audioElement = null;
+// content.js
 
-// Listen for messages from background script
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === "ping") {
-    // Respond to ping to confirm content script is loaded
+let audioEl = null;
+
+// 1️⃣ Listen for messages from background.js
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (msg.action === "ping") {
     sendResponse({ pong: true });
     return true;
   }
-  else if (message.action === "playAudio") {
-    playAudio(message.audioContent);
+  if (msg.action === "playAudio") {
+    playAudio(msg.audioContent);
+    return true;
   }
-  else if (message.action === "showError") {
-    showErrorMessage(message.message);
+  if (msg.action === "showError") {
+    showError(msg.message);
+    return true;
   }
-  return true; // Important to return true for async response
+  // otherwise ignore
+  return false;
 });
 
-// Function to play audio
-function playAudio(audioContent) {
+// 2️⃣ Your existing playAudio (decoded to Ogg/Opus)
+async function playAudio(base64) {
+  // tear down any old audio
+  if (audioEl) {
+    audioEl.pause();
+    URL.revokeObjectURL(audioEl.src);
+    audioEl.remove();
+    audioEl = null;
+  }
+
+  // build a Blob from the WAV base64 that Google gives us
+  const bin = atob(base64.replace(/\s+/g, ""));
+  const buf = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) {
+    buf[i] = bin.charCodeAt(i);
+  }
+  const blob = new Blob([buf.buffer], { type: "audio/mp3" });
+  const url  = URL.createObjectURL(blob);
+
+  // play it
+  audioEl = new Audio(url);
+  audioEl.onerror = () => {
+    console.error("[content] audio error:", audioEl.error);
+    showError("Playback error: " + (audioEl.error?.message || "unknown"));
+    URL.revokeObjectURL(url);
+  };
+  audioEl.onended = () => URL.revokeObjectURL(url);
+
   try {
-    // Stop any currently playing audio
-    if (audioElement) {
-      audioElement.pause();
-      audioElement = null;
-    }
-    
-    // Create new audio element
-    audioElement = new Audio(
-      `data:audio/mp3;base64,${audioContent}`
-    );
-    
-    audioElement.play().catch(error => {
-      console.error("Error playing audio:", error);
-      showErrorMessage("Could not play audio: " + error.message);
-    });
-  } catch (error) {
-    console.error("Error setting up audio:", error);
-    showErrorMessage("Error playing audio: " + error.message);
+    await audioEl.play();
+  } catch (err) {
+    console.error("[content] play() failed:", err);
+    showError("Could not play audio: " + err.message);
+    URL.revokeObjectURL(url);
   }
 }
 
-// Function to show error message
-function showErrorMessage(message) {
-  // Create notification element
-  let notification = document.createElement("div");
-  notification.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background-color: #f8d7da;
-    color: #721c24;
-    padding: 12px 20px;
-    border: 1px solid #f5c6cb;
-    border-radius: 4px;
-    z-index: 10000;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-width: 400px;
-  `;
-  notification.textContent = message;
-  
-  // Create close button
-  let closeBtn = document.createElement("button");
-  closeBtn.style.cssText = `
-    background: none;
-    border: none;
-    color: #721c24;
-    font-weight: bold;
-    font-size: 16px;
-    cursor: pointer;
-    position: absolute;
-    top: 5px;
-    right: 5px;
-  `;
-  closeBtn.textContent = "×";
-  closeBtn.onclick = () => document.body.removeChild(notification);
-  notification.appendChild(closeBtn);
-  
-  // Add to document and set timeout to remove
-  document.body.appendChild(notification);
-  setTimeout(() => {
-    if (notification.parentNode) {
-      notification.parentNode.removeChild(notification);
-    }
-  }, 5000);
+// Helper to write ASCII strings into DataView
+function writeString(view, offset, str) {
+  for (let i = 0; i < str.length; i++) {
+    view.setUint8(offset + i, str.charCodeAt(i));
+  }
+}
+
+// 3️⃣ A simple in-page error banner
+function showError(message) {
+  const n = document.createElement("div");
+  Object.assign(n.style, {
+    position: "fixed", top: "20px", right: "20px",
+    background: "#f8d7da", color: "#721c24",
+    padding: "12px 20px", border: "1px solid #f5c6cb",
+    borderRadius: "4px", zIndex: 10000, maxWidth: "300px",
+    fontFamily: "sans-serif"
+  });
+  n.textContent = message;
+  const btn = document.createElement("button");
+  Object.assign(btn.style, {
+    position: "absolute", top: "4px", right: "8px",
+    background: "none", border: "none",
+    color: "#721c24", fontSize: "16px", cursor: "pointer"
+  });
+  btn.textContent = "×";
+  btn.onclick = () => n.remove();
+  n.appendChild(btn);
+  document.body.appendChild(n);
+  setTimeout(() => n.remove(), 5000);
 }

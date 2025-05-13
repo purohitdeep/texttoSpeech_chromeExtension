@@ -4,14 +4,14 @@
   "version": "1.0",
   "description": "Convert selected text to speech using Google Cloud TTS API",
   "permissions": ["contextMenus", "storage", "activeTab", "scripting"],
-  "host_permissions": ["https://texttospeech.googleapis.com/"],
+  "host_permissions": ["https://texttospeech.googleapis.com/", "<all_urls>"],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
-    }
+    } 
   },
   "background": {
     "service_worker": "background.js"
