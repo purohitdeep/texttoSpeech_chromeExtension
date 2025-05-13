@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Text to Speech</title>
+  <style>
+    body {
+      width: 300px;
+      padding: 15px;
+      font-family: Arial, sans-serif;
+    }
+    h1 {
+      font-size: 18px;
+      margin-top: 0;
+    }
+    .instructions {
+      margin-bottom: 15px;
+      line-height: 1.4;
+    }
+    .shortcut {
+      background-color: #f1f3f4;
+      padding: 3px 6px;
+      border-radius: 3px;
+      font-family: monospace;
+    }
+    .buttons {
+      display: flex;
+      gap: 10px;
+    }
+    button {
+      background-color: #4285f4;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      flex: 1;
+    }
+    button:hover {
+      background-color: #3367d6;
+    }
+    .footer {
+      margin-top: 15px;
+      font-size: 12px;
+      color: #666;
+      border-top: 1px solid #eee;
+      padding-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Text to Speech</h1>
+  
+  <div class="instructions">
+    <p>To use this extension:</p>
+    <ol>
+      <li>Highlight text on any webpage</li>
+      <li>Right-click and select "Speak selected text" or use keyboard shortcut <span class="shortcut">Alt+T</span></li>
+    </ol>
+  </div>
+  
+  <div class="buttons">
+    <button id="optionsBtn">Options</button>
+    <button id="testBtn">Test Voice</button>
+  </div>
+  
+  <div class="footer">
+    Supported languages: English (US), English (UK), and Swedish
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>
