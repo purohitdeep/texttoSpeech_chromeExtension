@@ -1,5 +1,7 @@
 # Chrome TTS Extension Demo
 
+![Extension Icon](icons/icon128.png)
+
 A minimal demo showing how to call Google Cloud Text-to-Speech from a static page and play back the returned stream.
 
 ## Prerequisites
