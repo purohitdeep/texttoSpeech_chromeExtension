@@ -72,12 +72,14 @@ function speakText(text, tabId) {
 
 // 5️⃣ Call Google Cloud TTS and return a Promise of base64‐audio
 function fetchTTS(text, { apiKey, language, voice, pitch, rate }) {
-  const url = `https://texttospeech.googleapis.com/v1/text:synthesize?key=\${apiKey}`;
+  // Using string concatenation instead of template literals
+  const url = "https://texttospeech.googleapis.com/v1/text:synthesize?key=" + encodeURIComponent(apiKey);
+  
   const body = {
     input: { text },
     voice: { languageCode: language, name: voice },
     audioConfig: {
-      audioEncoding: "MP3",  // LINEAR16
+      audioEncoding: "MP3", // Using MP3 as we discussed before
       speakingRate: +rate
     }
   };
@@ -90,7 +92,7 @@ function fetchTTS(text, { apiKey, language, voice, pitch, rate }) {
   .then(async res => {
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      throw new Error(data.error?.message || `HTTP ${res.status}`);
+      throw new Error(data.error?.message || `HTTP \${res.status}`);
     }
     if (!data.audioContent) {
       throw new Error("No audio returned");
